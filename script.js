@@ -72,15 +72,49 @@ if (document.readyState === "loading") {
 // ─── SND-LIB INTEGRATION ─────────────────────────────────────────
 
 function syncSndLibVolume() {
-  // snd-lib uses data-snd-volume on the body or individual elements
-  // Range: 0.0 to 1.0
-  if (typeof snd !== "undefined" && snd && snd.setVolume) {
-    snd.setVolume(APP.sound ? APP.vol * APP.sfx : 0);
-  }
-  // Also set data attribute for CSS-based volume
+  const muted = !APP.sound;
+
+  // Store original snd classes for ALL elements with snd classes
+  // (handles both static HTML and dynamically rendered content)
+  document
+    .querySelectorAll(".snd__button, .snd__celebration, .snd__type")
+    .forEach((el) => {
+      if (!el.dataset.sndOrig) {
+        const cls = [];
+        if (el.classList.contains("snd__button")) cls.push("snd__button");
+        if (el.classList.contains("snd__celebration"))
+          cls.push("snd__celebration");
+        if (el.classList.contains("snd__type")) cls.push("snd__type");
+        el.dataset.sndOrig = cls.join(" ");
+      }
+    });
+
+  // Toggle snd classes on all stored elements
+  document.querySelectorAll("[data-snd-orig]").forEach((el) => {
+    const orig = el.dataset.sndOrig;
+    if (muted) {
+      el.classList.remove("snd__button", "snd__celebration", "snd__type");
+    } else {
+      orig.split(" ").forEach((c) => {
+        if (c) el.classList.add(c);
+      });
+    }
+  });
+
+  // Also try the snd-lib API if available
+  try {
+    if (typeof snd !== "undefined" && snd) {
+      if (typeof snd.setVolume === "function")
+        snd.setVolume(muted ? 0 : APP.vol * APP.sfx);
+      if (typeof snd.volume === "function")
+        snd.volume(muted ? 0 : APP.vol * APP.sfx);
+    }
+  } catch (e) {}
+
+  // Set data attribute for any CSS-based volume control
   document.body.setAttribute(
     "data-snd-volume",
-    APP.sound ? APP.vol * APP.sfx : 0,
+    muted ? "0" : String(APP.vol * APP.sfx),
   );
 }
 
