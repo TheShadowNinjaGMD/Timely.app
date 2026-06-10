@@ -9,10 +9,25 @@ const APP = {
   sfx: 0.7,
   music: 0.4,
   musicOn: false,
+  studyMusicOn: false,
   lightMode: false,
+  customTheme: null,
   audio: null,
   chime: document.getElementById("chime"),
   bgMusic: document.getElementById("bgMusic"),
+  audioUrl: null,
+  audioUrlEl: null,
+};
+
+// COLOR WHEEL STATE
+const CW = {
+  h: 217,
+  s: 73,
+  v: 96,
+  active: false,
+  tempH: 217,
+  tempS: 73,
+  tempV: 96,
 };
 
 // TIMER STATE
@@ -58,6 +73,9 @@ function init() {
   // Sync UI icons
   updateLightIcon();
   updateMuteIcon();
+
+  // Setup color wheel events (once DOM is ready)
+  setTimeout(setupColorWheelEvents, 100);
 
   console.log("Timely initialized ✓");
 }
@@ -170,6 +188,7 @@ function playComplete() {
 function startMusic() {
   if (APP.bgMusic && APP.musicOn) {
     APP.bgMusic.volume = APP.vol * APP.music;
+    APP.bgMusic.load();
     APP.bgMusic.play().catch(() => {});
   }
 }
@@ -198,11 +217,539 @@ function closeSettings() {
 function setTheme(theme) {
   playClick();
   APP.theme = theme;
-  document.body.setAttribute("data-theme", theme);
+
+  if (theme === "custom" && APP.customTheme) {
+    if (APP.lightMode) {
+      applyCustomThemeLightVars(APP.customTheme);
+    } else {
+      applyCustomThemeVars(APP.customTheme);
+    }
+  } else {
+    document.body.setAttribute("data-theme", theme);
+    document.body.removeAttribute("style");
+    // Re-apply light mode class so per-theme light variants take effect
+    document.body.classList.toggle("light-mode", APP.lightMode);
+  }
+
   document.querySelectorAll(".theme-card").forEach((c) => {
     c.classList.toggle("active", c.dataset.theme === theme);
   });
+  closeCustomTheme();
   save();
+}
+
+// ─── CUSTOM THEME ──────────────────────────────────────────────────
+
+function openCustomTheme() {
+  const editor = document.getElementById("themeEditor");
+  if (!editor) return;
+
+  // Populate editor with current custom theme values or currently active theme
+  const ct = APP.customTheme || {
+    bg: "#0f1419",
+    elevated: "#1a1f2e",
+    panel: "#222838",
+    text: "#f0f4f8",
+    accent: "#5b8fd9",
+    accentDark: "#4a7dc8",
+  };
+
+  // Or grab from current computed styles if active theme is not custom
+  if (APP.theme !== "custom") {
+    const body = document.body;
+    const style = getComputedStyle(body);
+    ct.bg = rgbToHex(style.getPropertyValue("--bg").trim());
+    ct.elevated = rgbToHex(style.getPropertyValue("--elevated").trim());
+    ct.panel = rgbToHex(style.getPropertyValue("--panel").trim());
+    ct.text = rgbToHex(style.getPropertyValue("--text").trim());
+    ct.accent = rgbToHex(style.getPropertyValue("--accent").trim());
+    ct.accentDark = rgbToHex(style.getPropertyValue("--accent-dark").trim());
+  }
+
+  document.getElementById("cBg").value = ct.bg;
+  document.getElementById("cElevated").value = ct.elevated;
+  document.getElementById("cPanel").value = ct.panel;
+  document.getElementById("cText").value = ct.text;
+  document.getElementById("cAccent").value = ct.accent;
+  document.getElementById("cAccentDark").value = ct.accentDark;
+
+  // Sync the color wheel trigger
+  const swatch = document.getElementById("cwTriggerSwatch");
+  const text = document.getElementById("cwTriggerText");
+  if (swatch && text) {
+    swatch.style.background = ct.accent;
+    text.textContent = ct.accent.toUpperCase();
+  }
+
+  editor.classList.add("open");
+}
+
+function closeCustomTheme() {
+  const editor = document.getElementById("themeEditor");
+  if (editor) editor.classList.remove("open");
+}
+
+function applyCustomTheme() {
+  const ct = {
+    bg: document.getElementById("cBg").value,
+    elevated: document.getElementById("cElevated").value,
+    panel: document.getElementById("cPanel").value,
+    text: document.getElementById("cText").value,
+    accent: document.getElementById("cAccent").value,
+    accentDark: document.getElementById("cAccentDark").value,
+  };
+
+  APP.customTheme = ct;
+  APP.theme = "custom";
+
+  applyCustomThemeVars(ct);
+
+  // Sync trigger UI
+  const swatch = document.getElementById("cwTriggerSwatch");
+  const text = document.getElementById("cwTriggerText");
+  if (swatch && text) {
+    swatch.style.background = ct.accent;
+    text.textContent = ct.accent.toUpperCase();
+  }
+
+  document.querySelectorAll(".theme-card").forEach((c) => {
+    c.classList.toggle("active", c.dataset.theme === "custom");
+  });
+
+  closeCustomTheme();
+  save();
+  playClick();
+}
+
+function applyCustomThemeVars(ct) {
+  document.body.removeAttribute("data-theme");
+  document.body.style.setProperty("--bg", ct.bg);
+  document.body.style.setProperty("--elevated", ct.elevated);
+  document.body.style.setProperty("--panel", ct.panel);
+  document.body.style.setProperty("--text", ct.text);
+  // Compute text-dim from text with reduced opacity
+  document.body.style.setProperty("--text-dim", ct.text + "99");
+  // Compute border from accent
+  document.body.style.setProperty("--border", hexToRgba(ct.accent, 0.2));
+  document.body.style.setProperty("--accent", ct.accent);
+  document.body.style.setProperty("--accent-dark", ct.accentDark);
+  document.body.style.setProperty("--glow", hexToRgba(ct.accent, 0.25));
+  document.body.style.setProperty("--grad1", ct.accent);
+  document.body.style.setProperty("--grad2", ct.accentDark);
+  document.body.style.setProperty("--surface", "rgba(255,255,255,0.03)");
+}
+
+// ─── COLOR WHEEL ────────────────────────────────────────────────
+
+function openColorWheel() {
+  const overlay = document.getElementById("colorWheelOverlay");
+  if (!overlay) return;
+
+  // Get current accent from editor
+  const accentEl = document.getElementById("cAccent");
+  const hex = accentEl ? accentEl.value : "#5b8fd9";
+  const { h, s, v } = hexToHsv(hex);
+
+  CW.tempH = h;
+  CW.tempS = s;
+  CW.tempV = v;
+  CW.h = h;
+  CW.s = s;
+  CW.v = v;
+  CW.active = true;
+
+  overlay.classList.add("open");
+  document.body.style.overflow = "hidden";
+
+  // Draw the wheel and update UI
+  drawColorWheel();
+  updateCwSliders();
+  updateCwValues();
+}
+
+function closeColorWheel() {
+  const overlay = document.getElementById("colorWheelOverlay");
+  if (!overlay) return;
+  CW.active = false;
+  overlay.classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+function applyColorWheel() {
+  const hex = hsvToHex(CW.tempH, CW.tempS, CW.tempV);
+  const dark = darkenColor(hex);
+
+  document.getElementById("cAccent").value = hex;
+  document.getElementById("cAccentDark").value = dark;
+
+  // Update the trigger UI
+  document.getElementById("cwTriggerSwatch").style.background = hex;
+  document.getElementById("cwTriggerText").textContent = hex.toUpperCase();
+
+  closeColorWheel();
+
+  // Preview the change immediately if custom theme is active
+  if (APP.theme === "custom") {
+    applyCustomTheme();
+  }
+}
+
+function drawColorWheel() {
+  const canvas = document.getElementById("cwWheel");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  const cx = 100,
+    cy = 100,
+    r = 95;
+
+  // Clear
+  ctx.clearRect(0, 0, 200, 200);
+
+  for (let y = 0; y < 200; y++) {
+    for (let x = 0; x < 200; x++) {
+      const dx = x - cx;
+      const dy = y - cy;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist > r) continue;
+
+      const hue = (Math.atan2(dy, dx) * 180) / Math.PI + 180;
+      const sat = dist / r;
+      const val = CW.tempV / 100;
+
+      const rgb = hsvToRgb(hue, sat * 100, val * 100);
+      ctx.fillStyle = `rgb(${rgb.r},${rgb.g},${rgb.b})`;
+      ctx.fillRect(x, y, 1, 1);
+    }
+  }
+
+  // Draw indicator ring at selected position
+  const angle = ((CW.tempH - 180) * Math.PI) / 180;
+  const dist = (CW.tempS / 100) * r;
+  const ix = cx + dist * Math.cos(angle);
+  const iy = cy + dist * Math.sin(angle);
+
+  ctx.beginPath();
+  ctx.arc(ix, iy, 6, 0, Math.PI * 2);
+  ctx.strokeStyle = "white";
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(ix, iy, 4, 0, Math.PI * 2);
+  ctx.strokeStyle = "rgba(0,0,0,0.5)";
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+}
+
+function hexToHsv(hex) {
+  const r = parseInt(hex.slice(1, 3), 16) / 255;
+  const g = parseInt(hex.slice(3, 5), 16) / 255;
+  const b = parseInt(hex.slice(5, 7), 16) / 255;
+
+  const max = Math.max(r, g, b),
+    min = Math.min(r, g, b);
+  const d = max - min;
+  let h = 0;
+  const s = max === 0 ? 0 : (d / max) * 100;
+  const v = max * 100;
+
+  if (max !== min) {
+    switch (max) {
+      case r:
+        h = ((g - b) / d + (g < b ? 6 : 0)) * 60;
+        break;
+      case g:
+        h = ((b - r) / d + 2) * 60;
+        break;
+      case b:
+        h = ((r - g) / d + 4) * 60;
+        break;
+    }
+  }
+  return { h: Math.round(h), s: Math.round(s), v: Math.round(v) };
+}
+
+function hsvToRgb(h, s, v) {
+  s = s / 100;
+  v = v / 100;
+  const c = v * s;
+  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+  const m = v - c;
+  let r = 0,
+    g = 0,
+    b = 0;
+
+  if (h < 60) {
+    r = c;
+    g = x;
+  } else if (h < 120) {
+    r = x;
+    g = c;
+  } else if (h < 180) {
+    g = c;
+    b = x;
+  } else if (h < 240) {
+    g = x;
+    b = c;
+  } else if (h < 300) {
+    r = x;
+    b = c;
+  } else {
+    r = c;
+    b = x;
+  }
+
+  return {
+    r: Math.round((r + m) * 255),
+    g: Math.round((g + m) * 255),
+    b: Math.round((b + m) * 255),
+  };
+}
+
+function hsvToHex(h, s, v) {
+  const { r, g, b } = hsvToRgb(h, s, v);
+  return "#" + [r, g, b].map((x) => x.toString(16).padStart(2, "0")).join("");
+}
+
+function updateCwSliders() {
+  const hPct = (CW.tempH / 360) * 100;
+  const sPct = CW.tempS;
+  const vPct = CW.tempV;
+
+  document.getElementById("cwHueThumb").style.left = hPct + "%";
+  document.getElementById("cwSatThumb").style.left = sPct + "%";
+  document.getElementById("cwValThumb").style.left = vPct + "%";
+
+  // Update sat/val gradient base color
+  const hueColor = hsvToHex(CW.tempH, 100, 100);
+  document.getElementById("cwSatFill").style.background =
+    `linear-gradient(to right, #808080, ${hueColor})`;
+  document.getElementById("cwValFill").style.background =
+    `linear-gradient(to right, #000000, ${hueColor})`;
+}
+
+function updateCwValues() {
+  const h = CW.tempH,
+    s = CW.tempS,
+    v = CW.tempV;
+  const hex = hsvToHex(h, s, v);
+  const { r, g, b } = hsvToRgb(h, s, v);
+
+  document.getElementById("cwPreview").style.background = hex;
+  document.getElementById("cwHex").value = hex.toUpperCase();
+  document.getElementById("cwRgb").value = `${r}, ${g}, ${b}`;
+
+  // CMYK
+  const cmyk = rgbToCmyk(r, g, b);
+  document.getElementById("cwCmyk").value =
+    `${cmyk.c}%, ${cmyk.m}%, ${cmyk.y}%, ${cmyk.k}%`;
+
+  // HSV
+  document.getElementById("cwHsv").value = `${h}°, ${s}%, ${v}%`;
+
+  // HSL
+  const hsl = hsvToHsl(h, s, v);
+  document.getElementById("cwHsl").value = `${hsl.h}°, ${hsl.s}%, ${hsl.l}%`;
+}
+
+function rgbToCmyk(r, g, b) {
+  const cr = r / 255,
+    cg = g / 255,
+    cb = b / 255;
+  const k = 1 - Math.max(cr, cg, cb);
+  if (k === 1) return { c: 0, m: 0, y: 0, k: 100 };
+  return {
+    c: Math.round(((1 - cr - k) / (1 - k)) * 100),
+    m: Math.round(((1 - cg - k) / (1 - k)) * 100),
+    y: Math.round(((1 - cb - k) / (1 - k)) * 100),
+    k: Math.round(k * 100),
+  };
+}
+
+function hsvToHsl(h, s, v) {
+  const sl = s / 100;
+  const vl = v / 100;
+  const l = (vl * (2 - sl)) / 2;
+  const sl2 =
+    l === 0 || l === 1 ? 0 : (vl * sl) / (l < 0.5 ? l * 2 : 2 - l * 2);
+  return {
+    h: h,
+    s: Math.round(sl2 * 100),
+    l: Math.round(l * 100),
+  };
+}
+
+function darkenColor(hex, amount = 20) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  const factor = 1 - amount / 100;
+  const nr = Math.round(r * factor);
+  const ng = Math.round(g * factor);
+  const nb = Math.round(b * factor);
+  return (
+    "#" + [nr, ng, nb].map((x) => x.toString(16).padStart(2, "0")).join("")
+  );
+}
+
+// ─── WHEEL & SLIDER EVENTS ─────────────────────────────────────
+
+function setupColorWheelEvents() {
+  const canvas = document.getElementById("cwWheel");
+  if (!canvas) return;
+
+  function handleWheel(e) {
+    if (!CW.active) return;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const mx = (e.clientX - rect.left) * scaleX;
+    const my = (e.clientY - rect.top) * scaleY;
+    const cx = 100,
+      cy = 100,
+      r = 95;
+    const dx = mx - cx;
+    const dy = my - cy;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    if (dist <= r) {
+      let hue = (Math.atan2(dy, dx) * 180) / Math.PI + 180;
+      if (hue >= 360) hue -= 360;
+      const sat = Math.min(100, Math.round((dist / r) * 100));
+      CW.tempH = Math.round(hue);
+      CW.tempS = sat;
+      drawColorWheel();
+      updateCwSliders();
+      updateCwValues();
+    }
+  }
+
+  canvas.addEventListener("mousedown", (e) => {
+    handleWheel(e);
+    const onMove = (ev) => handleWheel(ev);
+    const onUp = () => {
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
+    };
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
+  });
+
+  // Setup slider tracks
+  const tracks = [
+    { id: "cwHueTrack", prop: "tempH", max: 360 },
+    { id: "cwSatTrack", prop: "tempS", max: 100 },
+    { id: "cwValTrack", prop: "tempV", max: 100 },
+  ];
+
+  tracks.forEach(({ id, prop, max }) => {
+    const track = document.getElementById(id);
+    if (!track) return;
+
+    function handleTrack(e) {
+      const rect = track.getBoundingClientRect();
+      const pct = Math.max(
+        0,
+        Math.min(1, (e.clientX - rect.left) / rect.width),
+      );
+      CW[prop] = Math.round(pct * max);
+      drawColorWheel();
+      updateCwSliders();
+      updateCwValues();
+    }
+
+    track.addEventListener("mousedown", (e) => {
+      handleTrack(e);
+      const onMove = (ev) => handleTrack(ev);
+      const onUp = () => {
+        document.removeEventListener("mousemove", onMove);
+        document.removeEventListener("mouseup", onUp);
+      };
+      document.addEventListener("mousemove", onMove);
+      document.addEventListener("mouseup", onUp);
+    });
+  });
+}
+
+// ─── CUSTOM AUDIO URL ──────────────────────────────────────────
+
+function playAudioUrl() {
+  const input = document.getElementById("audioUrlInput");
+  const status = document.getElementById("audioUrlStatus");
+  const url = input.value.trim();
+
+  if (!url) {
+    status.textContent = "Please enter a URL";
+    status.className = "audio-url-status error";
+    return;
+  }
+
+  status.textContent = "Loading...";
+  status.className = "audio-url-status";
+
+  // Stop any existing custom audio
+  if (APP.audioUrlEl) {
+    APP.audioUrlEl.pause();
+    APP.audioUrlEl = null;
+  }
+
+  APP.audioUrlEl = new Audio(url);
+  APP.audioUrlEl.crossOrigin = "anonymous";
+
+  APP.audioUrlEl.oncanplaythrough = () => {
+    APP.audioUrlEl.volume = APP.vol * APP.music || 0.5;
+    APP.audioUrlEl.play().catch(() => {});
+    status.textContent = "Now playing";
+    status.className = "audio-url-status success";
+    APP.audioUrl = url;
+  };
+
+  APP.audioUrlEl.onerror = () => {
+    status.textContent = "Failed to load audio. Check the URL and try again.";
+    status.className = "audio-url-status error";
+    APP.audioUrlEl = null;
+  };
+}
+
+function downloadAudioUrl() {
+  const input = document.getElementById("audioUrlInput");
+  const status = document.getElementById("audioUrlStatus");
+  const url = input.value.trim();
+
+  if (!url) {
+    status.textContent = "Please enter a URL to download";
+    status.className = "audio-url-status error";
+    return;
+  }
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = url.split("/").pop() || "audio.mp3";
+  a.target = "_blank";
+  a.rel = "noopener";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+
+  status.textContent = "Download started";
+  status.className = "audio-url-status success";
+}
+
+function rgbToHex(rgb) {
+  if (!rgb || rgb === "") return "#0f1419";
+  if (rgb.startsWith("#")) return rgb;
+  const match = rgb.match(/[\d.]+/g);
+  if (!match || match.length < 3) return "#0f1419";
+  const r = Math.min(255, Math.round(parseFloat(match[0])));
+  const g = Math.min(255, Math.round(parseFloat(match[1])));
+  const b = Math.min(255, Math.round(parseFloat(match[2])));
+  return "#" + [r, g, b].map((x) => x.toString(16).padStart(2, "0")).join("");
+}
+
+function hexToRgba(hex, alpha) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return "rgba(" + r + "," + g + "," + b + "," + alpha + ")";
 }
 
 function toggleGlow() {
@@ -250,11 +797,16 @@ function toggleMusic() {
   document.getElementById("musicBox").style.display = APP.musicOn
     ? "block"
     : "none";
-  if (APP.musicOn && TIMER.study && APP.running) {
+  if (APP.musicOn) {
     startMusic();
   } else {
     stopMusic();
   }
+  save();
+}
+
+function toggleStudyMusic() {
+  APP.studyMusicOn = document.getElementById("studyMusicToggle").checked;
   save();
 }
 
@@ -263,8 +815,48 @@ function toggleMusic() {
 function toggleLightMode() {
   APP.lightMode = !APP.lightMode;
   document.body.classList.toggle("light-mode", APP.lightMode);
+
+  // For custom themes, recompute vars with light-adapted colors
+  if (APP.theme === "custom" && APP.customTheme) {
+    if (APP.lightMode) {
+      applyCustomThemeLightVars(APP.customTheme);
+    } else {
+      applyCustomThemeVars(APP.customTheme);
+    }
+  }
+
   updateLightIcon();
   save();
+}
+
+function applyCustomThemeLightVars(ct) {
+  document.body.removeAttribute("data-theme");
+  // Lighten backgrounds, darken text
+  document.body.style.setProperty("--bg", lightenColor(ct.bg, 85));
+  document.body.style.setProperty("--elevated", "#ffffff");
+  document.body.style.setProperty("--panel", lightenColor(ct.bg, 70));
+  document.body.style.setProperty("--text", darkenColor(ct.text, 85));
+  document.body.style.setProperty("--text-dim", darkenColor(ct.text, 55));
+  document.body.style.setProperty("--border", "rgba(0, 0, 0, 0.08)");
+  document.body.style.setProperty("--accent", ct.accent);
+  document.body.style.setProperty("--accent-dark", ct.accentDark);
+  document.body.style.setProperty("--glow", hexToRgba(ct.accent, 0.15));
+  document.body.style.setProperty("--grad1", ct.accent);
+  document.body.style.setProperty("--grad2", ct.accentDark);
+  document.body.style.setProperty("--surface", "rgba(0, 0, 0, 0.02)");
+}
+
+function lightenColor(hex, amount) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  const factor = amount / 100;
+  const nr = Math.min(255, Math.round(r + (255 - r) * factor));
+  const ng = Math.min(255, Math.round(g + (255 - g) * factor));
+  const nb = Math.min(255, Math.round(b + (255 - b) * factor));
+  return (
+    "#" + [nr, ng, nb].map((x) => x.toString(16).padStart(2, "0")).join("")
+  );
 }
 
 function updateLightIcon() {
@@ -336,7 +928,11 @@ function resetSettings() {
   APP.sfx = 0.7;
   APP.music = 0.4;
   APP.musicOn = false;
+  APP.studyMusicOn = false;
   APP.lightMode = false;
+  APP.customTheme = null;
+  APP.audioUrl = null;
+  APP.audioUrlEl = null;
 
   setTheme("ocean");
   document.getElementById("soundToggle").checked = true;
@@ -346,6 +942,8 @@ function resetSettings() {
   document.getElementById("musicSlider").value = 40;
   document.getElementById("musicToggle").checked = false;
   document.getElementById("autoBreak").checked = true;
+  const studyMusicEl = document.getElementById("studyMusicToggle");
+  if (studyMusicEl) studyMusicEl.checked = false;
 
   updateVol(80);
   updateSFX(70);
@@ -354,6 +952,16 @@ function resetSettings() {
   document.getElementById("musicBox").style.display = "none";
   document.body.classList.remove("no-glow");
   document.body.classList.remove("light-mode");
+  document.getElementById("audioUrlInput").value = "";
+  document.getElementById("audioUrlStatus").textContent = "";
+  document.getElementById("audioUrlStatus").className = "audio-url-status";
+  // Reset accent trigger
+  const swatch = document.getElementById("cwTriggerSwatch");
+  const text = document.getElementById("cwTriggerText");
+  if (swatch && text) {
+    swatch.style.background = "#5b8fd9";
+    text.textContent = "#5B8FD9";
+  }
   syncSndLibVolume();
   updateLightIcon();
   updateMuteIcon();
@@ -380,7 +988,10 @@ function save() {
         sfx: APP.sfx,
         music: APP.music,
         musicOn: APP.musicOn,
+        studyMusicOn: APP.studyMusicOn,
         lightMode: APP.lightMode,
+        customTheme: APP.customTheme,
+        audioUrl: APP.audioUrl,
       }),
     );
   } catch (e) {}
@@ -399,7 +1010,10 @@ function load() {
     APP.sfx = s.sfx || 0.7;
     APP.music = s.music || 0.4;
     APP.musicOn = s.musicOn || false;
+    APP.studyMusicOn = s.studyMusicOn || false;
     APP.lightMode = s.lightMode === true;
+    APP.customTheme = s.customTheme || null;
+    APP.audioUrl = s.audioUrl || null;
 
     setTheme(APP.theme);
     document.getElementById("soundToggle").checked = APP.sound;
@@ -408,6 +1022,8 @@ function load() {
     document.getElementById("sfxSlider").value = APP.sfx * 100;
     document.getElementById("musicSlider").value = APP.music * 100;
     document.getElementById("musicToggle").checked = APP.musicOn;
+    const studyMusicEl = document.getElementById("studyMusicToggle");
+    if (studyMusicEl) studyMusicEl.checked = APP.studyMusicOn;
 
     updateVol(APP.vol * 100);
     updateSFX(APP.sfx * 100);
@@ -418,6 +1034,22 @@ function load() {
     document.getElementById("musicBox").style.display = APP.musicOn
       ? "block"
       : "none";
+
+    // Restore custom theme accent trigger UI
+    if (APP.customTheme) {
+      const swatch = document.getElementById("cwTriggerSwatch");
+      const text = document.getElementById("cwTriggerText");
+      if (swatch && text) {
+        swatch.style.background = APP.customTheme.accent;
+        text.textContent = APP.customTheme.accent.toUpperCase();
+      }
+    }
+
+    // Restore audio URL input
+    if (APP.audioUrl) {
+      const input = document.getElementById("audioUrlInput");
+      if (input) input.value = APP.audioUrl;
+    }
   } catch (e) {}
 }
 
@@ -527,7 +1159,7 @@ function startTimer() {
   document.getElementById("playIcon").innerHTML =
     '<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>';
 
-  if (TIMER.study && APP.musicOn) startMusic();
+  if (TIMER.study && APP.musicOn && APP.studyMusicOn) startMusic();
 
   const startTime = Date.now();
   const startVal = TIMER.sec;

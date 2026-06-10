@@ -1,15 +1,15 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Timely</title>
-    <link rel="stylesheet" href="./style.css" />
-    <!-- Updated tab icon to reference the new ICO format -->
-    <link rel="icon" type="image/x-icon" href="./favicon.ico" />
-    <!-- snd-lib for sounds -->
-    <script src="https://cdn.jsdelivr.net/gh/snd-lib/snd-lib@v1.2.4/dist/browser/snd.js?kit=01"></script>
-  </head>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Timely</title>
+        <link rel="stylesheet" href="./style.css" />
+        <!-- Updated tab icon to reference the new ICO format -->
+        <link rel="icon" type="image/x-icon" href="./favicon.ico" />
+        <!-- snd-lib for sounds -->
+        <script src="https://cdn.jsdelivr.net/gh/snd-lib/snd-lib@v1.2.4/dist/browser/snd.js?kit=01"></script>
+    </head>
     <body data-theme="ocean">
         <!-- Settings Panel -->
         <div class="settings" id="settings">
@@ -77,6 +77,217 @@
                                 <div class="theme-swatch rose-swatch"></div>
                                 <span>Rose</span>
                             </button>
+                            <button
+                                class="theme-card snd__button"
+                                data-theme="candy"
+                                onclick="setTheme('candy')"
+                            >
+                                <div class="theme-swatch candy-swatch"></div>
+                                <span>Candy</span>
+                            </button>
+                            <button
+                                class="theme-card snd__button"
+                                data-theme="gold"
+                                onclick="setTheme('gold')"
+                            >
+                                <div class="theme-swatch gold-swatch"></div>
+                                <span>Gold</span>
+                            </button>
+                            <button
+                                class="theme-card snd__button"
+                                data-theme="slate"
+                                onclick="setTheme('slate')"
+                            >
+                                <div class="theme-swatch slate-swatch"></div>
+                                <span>Slate</span>
+                            </button>
+                            <button
+                                class="theme-card snd__button"
+                                data-theme="cherry"
+                                onclick="setTheme('cherry')"
+                            >
+                                <div class="theme-swatch cherry-swatch"></div>
+                                <span>Cherry</span>
+                            </button>
+                            <button
+                                class="theme-card snd__button"
+                                data-theme="mint"
+                                onclick="setTheme('mint')"
+                            >
+                                <div class="theme-swatch mint-swatch"></div>
+                                <span>Mint</span>
+                            </button>
+                            <button
+                                class="theme-card snd__button"
+                                data-theme="tangerine"
+                                onclick="setTheme('tangerine')"
+                            >
+                                <div
+                                    class="theme-swatch tangerine-swatch"
+                                ></div>
+                                <span>Tangerine</span>
+                            </button>
+                            <button
+                                class="theme-card snd__button"
+                                data-theme="nebula"
+                                onclick="setTheme('nebula')"
+                            >
+                                <div class="theme-swatch nebula-swatch"></div>
+                                <span>Nebula</span>
+                            </button>
+                            <button
+                                class="theme-card snd__button"
+                                data-theme="autumn"
+                                onclick="setTheme('autumn')"
+                            >
+                                <div class="theme-swatch autumn-swatch"></div>
+                                <span>Autumn</span>
+                            </button>
+                            <button
+                                class="theme-card snd__button"
+                                data-theme="arctic"
+                                onclick="setTheme('arctic')"
+                            >
+                                <div class="theme-swatch arctic-swatch"></div>
+                                <span>Arctic</span>
+                            </button>
+                            <button
+                                class="theme-card snd__button"
+                                data-theme="neon"
+                                onclick="setTheme('neon')"
+                            >
+                                <div class="theme-swatch neon-swatch"></div>
+                                <span>Neon</span>
+                            </button>
+                            <button
+                                class="theme-card snd__button"
+                                data-theme="coffee"
+                                onclick="setTheme('coffee')"
+                            >
+                                <div class="theme-swatch coffee-swatch"></div>
+                                <span>Coffee</span>
+                            </button>
+                            <button
+                                class="theme-card snd__button"
+                                data-theme="plum"
+                                onclick="setTheme('plum')"
+                            >
+                                <div class="theme-swatch plum-swatch"></div>
+                                <span>Plum</span>
+                            </button>
+                            <button
+                                class="theme-card snd__button"
+                                data-theme="coral"
+                                onclick="setTheme('coral')"
+                            >
+                                <div class="theme-swatch coral-swatch"></div>
+                                <span>Coral</span>
+                            </button>
+                            <button
+                                class="theme-card snd__button"
+                                data-theme="custom"
+                                onclick="openCustomTheme()"
+                            >
+                                <div class="theme-swatch custom-swatch"></div>
+                                <span>Custom</span>
+                            </button>
+                        </div>
+                        <!-- Custom Theme Editor -->
+                        <div class="theme-editor" id="themeEditor">
+                            <h4>Customize Your Theme</h4>
+                            <!-- Color wheel trigger for accent color -->
+                            <div class="cw-trigger-row">
+                                <label>Accent</label>
+                                <button
+                                    class="cw-trigger-btn"
+                                    onclick="openColorWheel()"
+                                >
+                                    <div
+                                        class="cw-trigger-swatch"
+                                        id="cwTriggerSwatch"
+                                        style="background: #5b8fd9"
+                                    ></div>
+                                    <span id="cwTriggerText">#5b8fd9</span>
+                                    <svg
+                                        class="cw-wheel-icon"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                    >
+                                        <circle cx="12" cy="12" r="10" />
+                                        <path d="M12 2a10 10 0 0 1 10 10" />
+                                        <path d="M12 2v10l-6 6" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="color-picker-grid">
+                                <div class="color-picker-item">
+                                    <label>Background</label>
+                                    <input
+                                        type="color"
+                                        id="cBg"
+                                        value="#0f1419"
+                                    />
+                                </div>
+                                <div class="color-picker-item">
+                                    <label>Surface</label>
+                                    <input
+                                        type="color"
+                                        id="cElevated"
+                                        value="#1a1f2e"
+                                    />
+                                </div>
+                                <div class="color-picker-item">
+                                    <label>Panel</label>
+                                    <input
+                                        type="color"
+                                        id="cPanel"
+                                        value="#222838"
+                                    />
+                                </div>
+                                <div class="color-picker-item">
+                                    <label>Text</label>
+                                    <input
+                                        type="color"
+                                        id="cText"
+                                        value="#f0f4f8"
+                                    />
+                                </div>
+                                <div
+                                    class="color-picker-item"
+                                    style="display: none"
+                                >
+                                    <label>Accent</label>
+                                    <input
+                                        type="color"
+                                        id="cAccent"
+                                        value="#5b8fd9"
+                                    />
+                                </div>
+                                <div class="color-picker-item">
+                                    <label>Accent Dark</label>
+                                    <input
+                                        type="color"
+                                        id="cAccentDark"
+                                        value="#4a7dc8"
+                                    />
+                                </div>
+                            </div>
+                            <div class="theme-editor-actions">
+                                <button
+                                    class="btn-cancel"
+                                    onclick="closeCustomTheme()"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    class="btn-apply"
+                                    onclick="applyCustomTheme()"
+                                >
+                                    Apply
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -184,6 +395,107 @@
                                 oninput="updateSFX(this.value)"
                             />
                         </div>
+                        <!-- Background Music Toggle (in Audio Settings) -->
+                        <div class="toggle-row">
+                            <label class="toggle-label">
+                                <input
+                                    type="checkbox"
+                                    id="musicToggle"
+                                    onchange="toggleMusic()"
+                                />
+                                <span class="toggle-switch"></span>
+                                <div class="toggle-info">
+                                    <strong>Background Music</strong>
+                                    <small
+                                        >Play ambient focus music from local
+                                        file</small
+                                    >
+                                </div>
+                            </label>
+                        </div>
+                        <div
+                            class="slider-box"
+                            id="musicBox"
+                            style="display: none"
+                        >
+                            <label>
+                                <span class="slider-label-row">
+                                    <svg
+                                        data-slot="icon"
+                                        fill="none"
+                                        stroke-width="1.5"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        aria-hidden="true"
+                                        class="vol-icon"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            d="M6 13.5V3.75m0 9.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 3.75V16.5m12-3V3.75m0 9.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 3.75V16.5m-6-9V3.75m0 3.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 9.75V10.5"
+                                        ></path>
+                                    </svg>
+                                    Music Volume
+                                </span>
+                                <span id="musicText">40%</span>
+                            </label>
+                            <input
+                                type="range"
+                                id="musicSlider"
+                                min="0"
+                                max="100"
+                                value="40"
+                                oninput="updateMusic(this.value)"
+                            />
+                        </div>
+                        <!-- Custom Audio URL -->
+                        <div class="audio-url-box">
+                            <label>
+                                <span class="audio-url-label">
+                                    <svg
+                                        width="16"
+                                        height="16"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                    >
+                                        <path d="M9 18V5l12-2v13" />
+                                        <circle cx="6" cy="18" r="3" />
+                                        <circle cx="18" cy="16" r="3" />
+                                    </svg>
+                                    Custom Audio URL
+                                </span>
+                                <div class="audio-url-input-row">
+                                    <input
+                                        type="text"
+                                        id="audioUrlInput"
+                                        placeholder="https://example.com/audio.mp3"
+                                    />
+                                    <button
+                                        type="button"
+                                        class="audio-url-btn"
+                                        onclick="playAudioUrl()"
+                                        title="Play"
+                                    >
+                                        Play
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="audio-url-btn"
+                                        onclick="downloadAudioUrl()"
+                                        title="Download"
+                                    >
+                                        Download
+                                    </button>
+                                </div>
+                                <div
+                                    class="audio-url-status"
+                                    id="audioUrlStatus"
+                                ></div>
+                            </label>
+                        </div>
                     </div>
 
                     <!-- Study Mode -->
@@ -225,53 +537,18 @@
                             <label class="toggle-label">
                                 <input
                                     type="checkbox"
-                                    id="musicToggle"
-                                    onchange="toggleMusic()"
+                                    id="studyMusicToggle"
+                                    onchange="toggleStudyMusic()"
                                 />
                                 <span class="toggle-switch"></span>
                                 <div class="toggle-info">
-                                    <strong>Background Music</strong>
+                                    <strong>Auto-play During Study</strong>
                                     <small
-                                        >Ambient focus music during study</small
+                                        >Start background music automatically
+                                        during study sessions</small
                                     >
                                 </div>
                             </label>
-                        </div>
-                        <div
-                            class="slider-box"
-                            id="musicBox"
-                            style="display: none"
-                        >
-                            <label>
-                                <span class="slider-label-row">
-                                    <svg
-                                        data-slot="icon"
-                                        fill="none"
-                                        stroke-width="1.5"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        aria-hidden="true"
-                                        class="vol-icon"
-                                    >
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            d="M6 13.5V3.75m0 9.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 3.75V16.5m12-3V3.75m0 9.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 3.75V16.5m-6-9V3.75m0 3.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 9.75V10.5"
-                                        ></path>
-                                    </svg>
-                                    Music Volume
-                                </span>
-                                <span id="musicText">40%</span>
-                            </label>
-                            <input
-                                type="range"
-                                id="musicSlider"
-                                min="0"
-                                max="100"
-                                value="40"
-                                oninput="updateMusic(this.value)"
-                            />
                         </div>
                     </div>
                 </div>
@@ -288,6 +565,131 @@
                         onclick="closeSettings()"
                     >
                         Done
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Color Wheel Modal -->
+        <div class="color-wheel-overlay" id="colorWheelOverlay">
+            <div class="color-wheel-modal">
+                <div class="color-wheel-header">
+                    <h3>Color Picker</h3>
+                    <button class="close-btn" onclick="closeColorWheel()">
+                        ×
+                    </button>
+                </div>
+                <div class="color-wheel-body">
+                    <div class="cw-top">
+                        <div class="cw-wheel-wrap">
+                            <canvas
+                                id="cwWheel"
+                                width="200"
+                                height="200"
+                            ></canvas>
+                        </div>
+                        <div class="cw-sliders">
+                            <div class="cw-slider-row">
+                                <label>H</label>
+                                <div class="cw-slider-track" id="cwHueTrack">
+                                    <div
+                                        class="cw-slider-fill"
+                                        id="cwHueFill"
+                                        style="
+                                            background: linear-gradient(
+                                                to right,
+                                                #f00,
+                                                #ff0,
+                                                #0f0,
+                                                #0ff,
+                                                #00f,
+                                                #f0f,
+                                                #f00
+                                            );
+                                        "
+                                    ></div>
+                                    <div
+                                        class="cw-slider-thumb"
+                                        id="cwHueThumb"
+                                        style="left: 0%"
+                                    ></div>
+                                </div>
+                            </div>
+                            <div class="cw-slider-row">
+                                <label>S</label>
+                                <div class="cw-slider-track" id="cwSatTrack">
+                                    <div
+                                        class="cw-slider-fill"
+                                        id="cwSatFill"
+                                        style="
+                                            background: linear-gradient(
+                                                to right,
+                                                #808080,
+                                                #f00
+                                            );
+                                        "
+                                    ></div>
+                                    <div
+                                        class="cw-slider-thumb"
+                                        id="cwSatThumb"
+                                        style="left: 100%"
+                                    ></div>
+                                </div>
+                            </div>
+                            <div class="cw-slider-row">
+                                <label>V</label>
+                                <div class="cw-slider-track" id="cwValTrack">
+                                    <div
+                                        class="cw-slider-fill"
+                                        id="cwValFill"
+                                        style="
+                                            background: linear-gradient(
+                                                to right,
+                                                #000,
+                                                #f00
+                                            );
+                                        "
+                                    ></div>
+                                    <div
+                                        class="cw-slider-thumb"
+                                        id="cwValThumb"
+                                        style="left: 100%"
+                                    ></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="cw-preview-section">
+                        <div
+                            class="cw-preview"
+                            id="cwPreview"
+                            style="background: #5b8fd9"
+                        ></div>
+                        <div class="cw-values">
+                            <div class="cw-value">
+                                <span>HEX</span><input id="cwHex" readonly />
+                            </div>
+                            <div class="cw-value">
+                                <span>RGB</span><input id="cwRgb" readonly />
+                            </div>
+                            <div class="cw-value">
+                                <span>CMYK</span><input id="cwCmyk" readonly />
+                            </div>
+                            <div class="cw-value">
+                                <span>HSV</span><input id="cwHsv" readonly />
+                            </div>
+                            <div class="cw-value">
+                                <span>HSL</span><input id="cwHsl" readonly />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="color-wheel-footer">
+                    <button class="cw-btn-cancel" onclick="closeColorWheel()">
+                        Cancel
+                    </button>
+                    <button class="cw-btn-apply" onclick="applyColorWheel()">
+                        Apply
                     </button>
                 </div>
             </div>
@@ -461,11 +863,7 @@
             id="chime"
             src="https://cdn.pixabay.com/audio/2022/03/15/audio_91c6c7c6a7.mp3"
         ></audio>
-        <audio
-            id="bgMusic"
-            loop=""
-            src="https://cdn.pixabay.com/audio/2022/03/10/audio_c8c7b0f1e4.mp3"
-        ></audio>
+        <audio id="bgMusic" loop="" src="./background_music.mp3"></audio>
 
         <script src="./script.js"></script>
     </body>
