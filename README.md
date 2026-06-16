@@ -1,59 +1,78 @@
-# ⏱️ Timely.app
+# Timely.app
 
 <!-- Deployment & Repository Stats Badges -->
-[![Website](https://shields.io)](https://theshadowninjagmd.github.io/Timely.app/)
-[![GitHub license](https://shields.io)](./LICENSE)
-[![GitHub stars](https://shields.io)](https://theshadowninjagmd.github.io/Timely.app/)
-[![GitHub issues](https://shields.io)](https://github.com)
+[![Website Status](https://shields.io)](https://theshadowninjagmd.github.io/Timely.app/)
+[![GitHub License](https://shields.io)](./LICENSE)
+[![GitHub Stars](https://shields.io)](https://github.com)
+[![GitHub Issues](https://shields.io)](https://github.com)
 
 <!-- Tech Stack Badges -->
 ![HTML5](https://shields.io)
 ![CSS3](https://shields.io)
 ![JavaScript](https://shields.io)
 
-> A sleek, versatile, browser-based utility built for focus, customisation, and seamlessly managing your time.
+> A sleek, versatile, browser-based utility built for focus, deep customisation, and seamlessly managing your time.
 
 ---
 
-## 🚀 Live Demo
+## Live Demo
 
-Experience the live application instantly:  
-👉 **[Launch Timely.app](https://theshadowninjagmd.github.io/Timely.app/)**
-
----
-
-## ✨ Features
-
-### 🕒 Time Management Modes
-* **Timer:** Standard, reliable countdown tool for structured tasks.
-* **Stopwatch:** Fast, precise count-up tracking to monitor continuous execution.
-* **Pomodoro / Study Mode:** Fixed 25-minute focus intervals coupled with automatic 5-minute recovery break reminders to sustain peak cognitive load.
-
-### 🎨 Deep Aesthetic Customisation
-* **20+ Built-In Themes:** Instant visual changes using curated color palettes including *Ocean, Sunset, Forest, Lavender, Midnight, Rose, Candy, Gold, Slate, Cherry, Mint, Tangerine, Nebula, Autumn, Arctic, Neon, Coffee, Plum, Coral, and Custom*.
-* **Granular UI Panel Design:** Adjust hex codes for the Accent, Background, Surface, Panel, and Text variables directly using an interactive structural color picker.
-* **Pulsing Glow Effects:** Toggled responsive animated button indicators providing soft feedback loops during operation.
-
-### 🎵 Dynamic Audio Engine
-* **Sound Effects:** Click triggers and alarms for focus period context shifts.
-* **Ambient Focus Music:** Stream custom background audio tracks straight from local storage files or load external web streams using the Custom Audio URL box.
-* **Independent Audio Sliders:** Separate master, system alert, and environment music volume tracks.
-
-### 🤖 Intelligent Automation
-* **Auto-Start Breaks:** Triggers break sequence countdowns automatically upon task completion.
-* **Auto-Play During Study:** Instantly boots your designated ambient environment music as soon as focus clocks start rolling.
+Experience the responsive web application instantly in your browser:  
+ **[Launch Timely.app Production Site](https://theshadowninjagmd.github.io/Timely.app/)**
 
 ---
 
-## 🛠️ Technology Stack
+## Feature Architecture
 
-* **HTML5:** Semantic architecture for layout definition.
-* **CSS3:** Core user interface detailing, responsive grid/flexbox controls, and smooth theme transitioning animations.
-* **Vanilla JavaScript:** Native, client-side application logic execution managing system clocks, DOM states, audio controls, and configuration pipelines.
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <h3>Time Management Engines</h3>
+      <ul>
+        <li><b>Timer Module:</b> High-precision countdown tool for structured intervals.</li>
+        <li><b>Stopwatch Mode:</b> Continuous count-up tracking to monitor workflow execution.</li>
+        <li><b>Pomodoro Framework:</b> 25-minute focus intervals coupled with automatic 5-minute recovery break reminders to sustain cognitive performance.</li>
+      </ul>
+    </td>
+    <td width="50%" valign="top">
+      <h3>Visual Customisation</h3>
+      <ul>
+        <li><b>20+ Curated Themes:</b> Hot-swap styles instantly including <i>Ocean, Sunset, Midnight, Nebula, Arctic, Neon, Coffee, and Plum</i>.</li>
+        <li><b>Granular Palette Mixer:</b> Real-time HEX color picker overrides Accent, Background, Surface, Panel, and Text variables.</li>
+        <li><b>Pulsing Glow FX:</b> Dynamic, animated visual feedback loops that shift state with your timer.</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <h3>Dynamic Audio Controller</h3>
+      <ul>
+        <li><b>Context Alerts:</b> Clean mechanical click sounds and audio alarms for session completions.</li>
+        <li><b>Immersive Soundscapes:</b> Stream background focus loops directly from local files or inject external audio streams via the URL box.</li>
+        <li><b>Multi-Track Mixer:</b> Independent sliders for Master, System Alerts, and Environmental Music.</li>
+      </ul>
+    </td>
+    <td width="50%" valign="top">
+      <h3>Automation & Flow</h3>
+      <ul>
+        <li><b>Chained Sequences:</b> Automatically initiates recovery countdowns upon completion of focus blocks.</li>
+        <li><b>Auto-Play Triggers:</b> Seamlessly boots your designated ambient environment tracks the second a countdown session starts.</li>
+      </ul>
+    </td>
+  </tr>
+</table>
 
 ---
 
-## 📂 File Architecture Overview
+## Technology Stack
+
+* **HTML5:** Structurally semantic layout engine ensuring accessible Document Object Model (DOM) configurations.
+* **CSS3:** Core interface layout utilizing **CSS Grid** and **Flexbox** primitives, custom variable theme tokens, and GPU-accelerated transition states.
+* **Vanilla JavaScript:** Zero-dependency, client-side execution loops overseeing state timers, application runtime routing, audio mixing, and asset pipelines.
+
+---
+
+## 📂 Repository File System
 
 ```text
 Timely.app/
@@ -69,17 +88,29 @@ Timely.app/
 
 ---
 
-## 🤝 How to Contribute
+##  Open-Source Contribution Pipeline
 
-Contributions are welcome! Please feel free to help enhance Timely.app:
-1. **Fork** the project repository.
-2. **Create** a feature branch (`git checkout -b feature/AmazingFeature`).
-3. **Commit** your refinements (`git commit -m 'Add some AmazingFeature'`).
-4. **Push** your branch (`git push origin feature/AmazingFeature`).
-5. **Open** a Pull Request for code review.
+Contributions keep development moving forward! Help improve the workspace by executing these steps:
+
+1. **Fork** the project repository to your profile.
+2. Create your isolated local workspace branch:
+   ```bash
+   git checkout -b feature/AmazingFeature
+   ```
+3. Commit your design additions using clear messages:
+   ```bash
+   git commit -m 'Add some AmazingFeature'
+   ```
+4. Push your changes to your fork:
+   ```bash
+   git push origin feature/AmazingFeature
+   ```
+5. Submit a descriptive **Pull Request** against our default repository branch for automated validation and review.
 
 ---
 
-## 📄 License
+## 📄 License & Attribution
 
-Distributed under the terms specified in the repository [LICENSE](./LICENSE) file. Built with passion by [@TheShadowNinjaGMD](https://github.com).
+Distributed under the terms specified in the repository [LICENSE](./LICENSE) file.
+
+Built with passion for elegant design workflows by **[@TheShadowNinjaGMD](https://github.com)**.
