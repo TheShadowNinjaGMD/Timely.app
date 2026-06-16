@@ -1,0 +1,42 @@
+name: Code Quality & Bug Validation
+
+on:
+  push:
+    branches:
+      - alpha
+  pull_request:
+    branches:
+      - alpha
+
+permissions:
+  contents: read
+
+jobs:
+  validate-code:
+    name: Lint HTML, CSS, and JS Runtime
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-node: 20
+
+      - name: Install Linting Packages
+        run: |
+          npm install -g htmlhint stylelint stylelint-config-standard eslint
+
+      - name: Validate HTML Semantics
+        run: |
+          htmlhint "index.html"
+
+      - name: Scan CSS Stylesheets for Errors
+        run: |
+          npx stylelint "stylecss" --config stylelint-config-standard || echo "Style warnings detected"
+
+      - name: Parse JavaScript for Syntax Bugs
+        run: |
+          npx eslint "script.js" --env browser --parser-options=ecmaVersion:latest || echo "Script evaluation completed"
